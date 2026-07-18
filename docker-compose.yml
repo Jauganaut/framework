@@ -31,6 +31,19 @@ services:
     networks:
       - bitb_net
 
+  # Build-only service for the Firefox browser image so Compose ensures the
+  # `bitb-firefox-custom:latest` image is available for the app to spawn.
+  bitb-firefox-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.firefox-custom
+    image: bitb-firefox-custom:latest
+    container_name: bitb-firefox-builder
+    entrypoint: ["/bin/true"]
+    restart: "no"
+    networks:
+      - bitb_net
+
 volumes:
   redis_data:
 
