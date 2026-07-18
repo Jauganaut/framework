@@ -10,6 +10,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
+      - CLOUDFLARE_TOKEN=${CLOUDFLARE_TOKEN:-}
       - ADMIN_IPS=${ADMIN_IPS:-127.0.0.1}
       - SECRET_KEY=${SECRET_KEY:-changeme}
       - EXFIL_ENDPOINT=${EXFIL_ENDPOINT:-http://localhost:8080}

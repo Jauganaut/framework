@@ -279,7 +279,7 @@
                     </td>
                     <td>${s.target_url}</td>
                     <td>
-                        ${s.cf_url ? `<a href="${s.cf_url}" target="_blank" class="vnc-link">Open VNC ↗</a>` : 'Pending...'}
+                        ${s.cf_url ? `<div><a href="${s.cf_url}" target="_blank" class="vnc-link">Open Tunnel ↗</a></div><div style="font-size: 0.75rem; color: #8b949e; margin-top: 0.25rem; word-break: break-all;">${s.cf_url}</div>` : 'Pending...'}
                     </td>
                     <td>${new Date(s.created_at).toLocaleString()}</td>
                     <td>

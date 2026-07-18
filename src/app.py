@@ -295,14 +295,11 @@ async def spawn_browser(session: BrowserSession, sanitized_id: str):
         vnc_port = session_mgr.reserve_port()
         session.vnc_port = vnc_port
 
-        try:
-            tunnel = await cf_mgr.create_tunnel(f'bitb-{session.id}', f'localhost:{vnc_port}')
-            session.cf_url = tunnel['url']
-            session.cf_tunnel_id = tunnel['id']
-        except Exception as tunnel_error:
-            app.logger.warning(f'Cloudflare tunnel creation failed, continuing without it: {tunnel_error}')
-            session.cf_url = None
-            session.cf_tunnel_id = None
+        tunnel = await cf_mgr.create_tunnel(f'bitb-{session.id}', f'localhost:{vnc_port}')
+        session.cf_url = tunnel['url']
+        session.cf_tunnel_id = tunnel['id']
+        app.logger.info('Cloudflare tunnel active for session %s: %s', session.id, session.cf_url)
+        print(f"[CLOUDFLARE] Session {session.id} using tunnel {session.cf_url}", flush=True)
 
         session_dir = os.path.join(CONFIG['DATA_DIR'], sanitized_id)
         container = docker_client.containers.run(

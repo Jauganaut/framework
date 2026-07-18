@@ -69,7 +69,14 @@ cd bitb-framework
 cp .env.example .env
 ```
 
-2. Edit `.env`:
+2. Create and activate a Python virtual environment on Linux:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+3. Edit `.env`:
 ```bash
 # Required
 ADMIN_IPS=your.ip.address.here,another.ip.here
@@ -82,12 +89,12 @@ SESSION_TIMEOUT=3600
 EXFIL_ENDPOINT=http://localhost:8080
 ```
 
-3. Build and run:
+4. Build and run with Docker on Linux:
 ```bash
 docker compose up -d --build
 ```
 
-4. Access dashboard:
+5. Access dashboard:
 ```
 http://localhost:8080
 ```

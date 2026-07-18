@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Cloudflare Tunnel Manager using pycloudflared
+Cloudflare Tunnel Manager using the cloudflared binary provided through pycloudflared-style tooling.
 """
 
 import asyncio
+import os
 import subprocess
 import re
 from typing import Dict, Optional
@@ -31,36 +32,47 @@ class CloudflareTunnelManager:
 
     async def create_tunnel(self, name: str, local_service: str) -> Dict:
         self._ensure_cloudflared()
+
         cmd = [
             'cloudflared', 'tunnel', '--url', f'http://{local_service}', '--metrics', 'localhost:0', '--no-autoupdate'
         ]
         if self.token:
             cmd = ['cloudflared', 'tunnel', 'run', '--token', self.token, '--url', f'http://{local_service}']
 
+        env = os.environ.copy()
+        env.setdefault('TUNNEL_METRICS', 'localhost:0')
+
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            env=env
         )
 
         url = None
         tunnel_id = None
+        stderr_output = []
 
         for _ in range(60):
             await asyncio.sleep(1)
             if process.stderr:
                 line = process.stderr.readline()
-                if 'trycloudflare.com' in line:
-                    match = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
-                    if match:
-                        url = match.group(0)
-                        tunnel_id = name
-                        break
+                if line:
+                    stderr_output.append(line)
+                    if 'trycloudflare.com' in line:
+                        match = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
+                        if match:
+                            url = match.group(0)
+                            tunnel_id = name
+                            break
 
         if not url:
             process.terminate()
-            raise RuntimeError('Failed to create tunnel')
+            if process.poll() is None:
+                process.wait(timeout=5)
+            combined_output = ''.join(stderr_output)
+            raise RuntimeError(f'Failed to create tunnel. Output: {combined_output}')
 
         tunnel = Tunnel(
             id=tunnel_id,
