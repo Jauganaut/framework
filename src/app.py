@@ -9,6 +9,7 @@ import json
 import uuid
 import hashlib
 import asyncio
+import threading
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
@@ -147,7 +148,15 @@ def launch_session():
         exfil_data={}
     )
 
-    asyncio.create_task(spawn_browser(session, sanitized))
+    # Run the async spawn_browser in a background thread using its own event loop
+    def _run_spawn(s, sid):
+        try:
+            asyncio.run(spawn_browser(s, sid))
+        except Exception as e:
+            app.logger.error(f'spawn_browser error: {e}')
+
+    t = threading.Thread(target=_run_spawn, args=(session, sanitized), daemon=True)
+    t.start()
 
     redis_client.setex(
         f'session:{session_id}',
