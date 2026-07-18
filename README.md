@@ -8,11 +8,12 @@
 
 BitB Framework is a sophisticated Browser-in-the-Middle (BitB) attack platform designed for authorized MFA bypass assessments. It provides:
 
-- **Isolated Browser Containers**: Firefox instances with VNC access via Cloudflare Tunnel
+- **Isolated Browser Containers**: Firefox instances with VNC access for interactive sessions
 - **Session Interception**: Cookie and credential extraction from target applications
 - **Replay Capability**: Restore captured sessions in fresh browser instances
 - **Chinese Character Support**: Full CJK font rendering for Alibaba/DingTalk targets
 - **Web Dashboard**: Centralized management of attack sessions
+- **Optional Cloudflare Tunnels**: If available, the app can create a temporary public URL for a session; otherwise it continues without one
 
 ## Project Structure
 
@@ -56,8 +57,8 @@ bitb-framework/
 ### Prerequisites
 
 - Docker & Docker Compose
-- Cloudflare account (for tunnels)
-- Discord webhook (for notifications)
+- Discord webhook (for notifications, optional)
+- Cloudflare tooling (optional, only if you want temporary public tunnel URLs)
 
 ### Installation
 
@@ -71,19 +72,19 @@ cp .env.example .env
 2. Edit `.env`:
 ```bash
 # Required
-DISCORD_WEBHOOK=https://discord.com/api/webhooks/...
-CLOUDFLARE_TUNNEL_TOKEN=your_token_here
 ADMIN_IPS=your.ip.address.here,another.ip.here
 
 # Optional
+DISCORD_WEBHOOK=https://discord.com/api/webhooks/...
 SECRET_KEY=your-random-secret-key
 MAX_CONTAINERS=10
 SESSION_TIMEOUT=3600
+EXFIL_ENDPOINT=http://localhost:8080
 ```
 
 3. Build and run:
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 4. Access dashboard:

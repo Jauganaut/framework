@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   bitb-dashboard:
     build:
@@ -12,7 +10,6 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
-      - CLOUDFLARE_TOKEN=${CLOUDFLARE_TOKEN}
       - ADMIN_IPS=${ADMIN_IPS:-127.0.0.1}
       - SECRET_KEY=${SECRET_KEY:-changeme}
       - EXFIL_ENDPOINT=${EXFIL_ENDPOINT:-http://localhost:8080}
@@ -30,14 +27,6 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
-    networks:
-      - bitb_net
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: bitb-cloudflared
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       - bitb_net
 

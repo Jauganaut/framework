@@ -1,0 +1,14 @@
+.git
+.venv
+.vscode
+__pycache__/
+*.py[cod]
+*.log
+*.sqlite
+*.db
+.env
+.env.*
+data/
+*.deb
+*.tar.gz
+.DS_Store
